@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        xmlns:configslider="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pre-processing"
+            android:fontFamily="sans-serif-condensed"
+            android:paddingBottom="5dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Menu"/>
+
+        <uk.co.wideopentech.edges.ConfigSlider
+            android:id="@+id/csBlurKernelSize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            configslider:max="20"
+            configslider:min="1"
+            configslider:title="Blur Kernel Size"
+            configslider:value="13" />
+
+        <uk.co.wideopentech.edges.ConfigSlider
+            android:id="@+id/csContrast"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            configslider:max="100"
+            configslider:min="-100"
+            configslider:title="Contrast"
+            configslider:value="0" />
+
+        <uk.co.wideopentech.edges.ConfigSlider
+            android:id="@+id/csBrightness"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            configslider:max="100"
+            configslider:min="-100"
+            configslider:title="Brightness"
+            configslider:value="0" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Specfic Filters"
+            tools:fontFamily="sans-serif-condensed"
+            android:paddingBottom="5dp"
+            android:paddingTop="10dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Menu"/>
+
+        <uk.co.wideopentech.edges.ConfigSlider
+            android:id="@+id/csOtsuThreshold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            configslider:max="255"
+            configslider:min="0"
+            configslider:title="Otsu Threshold"
+            configslider:value="0" />
+
+        <uk.co.wideopentech.edges.ConfigSlider
+            android:id="@+id/csOtsuMas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            configslider:max="255"
+            configslider:min="0"
+            configslider:title="Otsu Max"
+            configslider:value="255" />
+
+        <uk.co.wideopentech.edges.ConfigSlider
+            android:id="@+id/csCannyThreshold1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            configslider:max="255"
+            configslider:min="0"
+            configslider:title="Canny Threshold 1"
+            configslider:value="80" />
+
+        <uk.co.wideopentech.edges.ConfigSlider
+            android:id="@+id/csCannyThreshold2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            configslider:max="255"
+            configslider:min="0"
+            configslider:title="Canny Threshold 2"
+            configslider:value="100" />
+
+        <uk.co.wideopentech.edges.ConfigSlider
+            android:id="@+id/csCannyKernelSize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            configslider:max="4"
+            configslider:min="1"
+            configslider:title="Canny Kernel Size"
+            configslider:value="2" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="General Filters"
+            tools:fontFamily="sans-serif-condensed"
+            android:paddingBottom="5dp"
+            android:paddingTop="10dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Menu"/>
+
+        <uk.co.wideopentech.edges.ConfigSlider
+            android:id="@+id/csKernelSize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            configslider:max="4"
+            configslider:min="1"
+            configslider:title="Kernel Size"
+            configslider:value="2" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sensible Defaults"
+            android:id="@+id/defaultsButton"
+            android:layout_marginTop="5dp"/>
+
+    </LinearLayout>
+
+</ScrollView>
