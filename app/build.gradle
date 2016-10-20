@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25"
+    buildToolsVersion '25'
     defaultConfig {
         applicationId "uk.co.wideopentech.edges"
         minSdkVersion 22
@@ -11,8 +11,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        renderscriptTargetApi 19
-        //renderscriptSupportModeEnabled true
+        renderscriptTargetApi 21
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++11"
@@ -43,7 +42,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:25.0.0'
     testCompile 'junit:junit:4.12'
 }

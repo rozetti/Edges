@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             configslider:max="20"
             configslider:min="1"
-            configslider:title="Blur Kernel Size"
+            configslider:label="Blur Kernel Size"
             configslider:value="13" />
 
         <uk.co.wideopentech.edges.ConfigSlider
@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             configslider:max="100"
             configslider:min="-100"
-            configslider:title="Contrast"
+            configslider:label="Contrast"
             configslider:value="0" />
 
         <uk.co.wideopentech.edges.ConfigSlider
@@ -44,7 +44,7 @@
             android:layout_height="wrap_content"
             configslider:max="100"
             configslider:min="-100"
-            configslider:title="Brightness"
+            configslider:label="Brightness"
             configslider:value="0" />
 
         <TextView
@@ -62,7 +62,7 @@
             android:layout_height="wrap_content"
             configslider:max="255"
             configslider:min="0"
-            configslider:title="Otsu Threshold"
+            configslider:label="Otsu Threshold"
             configslider:value="0" />
 
         <uk.co.wideopentech.edges.ConfigSlider
@@ -71,7 +71,7 @@
             android:layout_height="wrap_content"
             configslider:max="255"
             configslider:min="0"
-            configslider:title="Otsu Max"
+            configslider:label="Otsu Max"
             configslider:value="255" />
 
         <uk.co.wideopentech.edges.ConfigSlider
@@ -80,7 +80,7 @@
             android:layout_height="wrap_content"
             configslider:max="255"
             configslider:min="0"
-            configslider:title="Canny Threshold 1"
+            configslider:label="Canny Threshold 1"
             configslider:value="80" />
 
         <uk.co.wideopentech.edges.ConfigSlider
@@ -89,7 +89,7 @@
             android:layout_height="wrap_content"
             configslider:max="255"
             configslider:min="0"
-            configslider:title="Canny Threshold 2"
+            configslider:label="Canny Threshold 2"
             configslider:value="100" />
 
         <uk.co.wideopentech.edges.ConfigSlider
@@ -98,7 +98,7 @@
             android:layout_height="wrap_content"
             configslider:max="4"
             configslider:min="1"
-            configslider:title="Canny Kernel Size"
+            configslider:label="Canny Kernel Size"
             configslider:value="2" />
 
         <TextView
@@ -116,7 +116,7 @@
             android:layout_height="wrap_content"
             configslider:max="4"
             configslider:min="1"
-            configslider:title="Kernel Size"
+            configslider:label="Kernel Size"
             configslider:value="2" />
 
         <Button
