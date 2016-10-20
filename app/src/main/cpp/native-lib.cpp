@@ -1,11 +1,24 @@
 #include <jni.h>
 
 #include "processor.h"
+#include "face_detector.h"
 
 static rz::processor processor;
+rz::face_detector _face_detector;
 
 extern "C"
 {
+
+JNIEXPORT void JNICALL
+Java_uk_co_wideopentech_edges_FaceDetector_SetCascadeDataNative(JNIEnv *env, jclass type,
+                                                                jstring data_)
+{
+    const char *data = env->GetStringUTFChars(data_, 0);
+
+    _face_detector.load_cascade(data);
+
+    env->ReleaseStringUTFChars(data_, data);
+}
 
 JNIEXPORT jint JNICALL
 Java_uk_co_wideopentech_edges_EdgesConfig_GetParameterNative(JNIEnv *env, jclass type, jint parameter)

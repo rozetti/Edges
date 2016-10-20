@@ -1,15 +1,13 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-include_directories(/OpenCV-android-sdk/sdk/native/jni/include)
-
-set(OPENCV_LIB_PATH C:\\repos\\Edges\\app\\src\\main\\jniLibs/${ANDROID_NDK_ABI_NAME})
-
-link_directories(${OPENCV_LIB_PATH})
+include_directories(${OPENCV_INCLUDE_PATH})
+link_directories(${OPENCV_LIB_PATH}/${ANDROID_NDK_ABI_NAME})
 
 add_library(
 native-lib SHARED
 src/main/cpp/native-lib.cpp
 src/main/cpp/processor.cpp
+src/main/cpp/face_detector.cpp
 #src/main/cpp/renderscript_filters.cpp # crz: RS from NDK is not supported on my API 15 tablet
 )
 

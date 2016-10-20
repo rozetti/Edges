@@ -24,6 +24,7 @@ public class EdgeProcessor {
         Greyscale,
         Canny,
         Otsu,
+        Face,
         Laplacian,
         Box,
         ScharrX,
@@ -51,6 +52,7 @@ public class EdgeProcessor {
     private ImageView mView = null;
 
     private Bitmap mBitmap = null;
+    private boolean mEnabled = true;
 
     private static native void SetupProcessorsNative(int width, int height);
     private static native void SetFrameDataNative(byte[] data);
@@ -64,22 +66,25 @@ public class EdgeProcessor {
         SetupProcessorsNative(width, height);
     }
 
+    public boolean getEnabled() { return mEnabled; }
+    public void enable() { mEnabled = true; }
+    public void disable() { mEnabled = false; }
+
     public static void setViewHandler(final Handler handler) {
         _viewHandler = handler;
     }
-
     public static void setFrameData(final byte[] data) {
         SetFrameDataNative(data);
     }
 
-    public EdgeProcessor(EdgeProcessor.Type type, final ImageView view)
+    public EdgeProcessor(EdgeProcessor.Type type)
     {
         mType = type;
-        mView = view;
 
         mBitmap = Bitmap.createBitmap(_width, _height, Bitmap.Config.ARGB_8888);
     }
 
+    public void setView(ImageView view) { mView = view; }
     public View getView() {
         return mView;
     }
@@ -92,6 +97,9 @@ public class EdgeProcessor {
     {
         public void run()
         {
+
+            if (!mEnabled) return;
+
             ProcessNative(mType.ordinal(), _processedPixels);
 
             switch(mType) {

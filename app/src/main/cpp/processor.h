@@ -7,6 +7,7 @@ enum filter_type_t
     Greyscale,
     Canny,
     Otsu,
+    Face,
     Laplacian,
     Box,
     ScharrX,

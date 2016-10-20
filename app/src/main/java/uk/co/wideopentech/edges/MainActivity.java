@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.os.Build;
@@ -12,6 +13,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -21,9 +23,16 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
+import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.InputStream;
+import java.util.ArrayList;
 
 import static java.lang.Math.max;
 
@@ -34,9 +43,12 @@ public class MainActivity extends AppCompatActivity {
 
     private int mPreviewWidth;
     private int mPreviewHeight;
+    private int mGridColumnCount;
 
     private CameraPreview mCameraPreview;
     private boolean mCanUseCamera = true;
+
+    private ProcessorModels mProcessors = null;
 
     static {
         System.loadLibrary("opencv_java3");
@@ -54,8 +66,9 @@ public class MainActivity extends AppCompatActivity {
 
         setupCameraFrame();
         EdgeProcessor.setFrame(mPreviewWidth, mPreviewHeight);
-        mCameraPreview = new CameraPreview(mPreviewWidth, mPreviewHeight, createProcessors());
-        bindProcessorsToViews();
+        mProcessors = createProcessors();
+        mCameraPreview = new CameraPreview(mPreviewWidth, mPreviewHeight, mProcessors);
+        createAndBindViews();
         createCameraSurface();
     }
 
@@ -72,12 +85,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void loadCascadeData()
+    {
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         context = this;
         EdgesConfig.setInstance(new EdgesConfig(this));
+
+        InputStream str = getResources().openRawResource(R.raw.lbpcascade_frontalface);
+        FaceDetector.init(str);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
@@ -120,64 +141,75 @@ public class MainActivity extends AppCompatActivity {
         if (max(dm.widthPixels, dm.heightPixels) >= 640 * 3 + 100) {
             mPreviewWidth = 640;
             mPreviewHeight = 480;
+            mGridColumnCount = 2;
         } else {
             mPreviewWidth = 320;
             mPreviewHeight = 240;
+            if (max(dm.widthPixels, dm.heightPixels) >= 320 * 3 + 100) {
+                mGridColumnCount = 3;
+            } else {
+                mGridColumnCount = 2;
+            }
         }
     }
 
-    private EdgeProcessor[] createProcessors() {
-        return new EdgeProcessor[] {
-                new EdgeProcessor(EdgeProcessor.Type.Greyscale, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.Canny, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.Otsu, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.Laplacian, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.Box, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.ScharrX, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.ScharrY, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.ScharrQuad, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.ScharrMax, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.Sobel, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.Chrominance, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.SobelX, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.SobelY, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.SobelQuad, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.SobelMax, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.RenderScriptHighPass, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.RenderScriptLowPass, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.RenderScriptBandPass, new ImageView(this)),
-                new EdgeProcessor(EdgeProcessor.Type.RenderScriptBandStop, new ImageView(this))
+    private ProcessorModels createProcessors() {
+        ProcessorModel[] models = new ProcessorModel[] {
+                new ProcessorModel("Greyscale", EdgeProcessor.Type.Greyscale, "OpenCV Pre-process"),
+                new ProcessorModel("Canny", EdgeProcessor.Type.Canny, "OpenCV Canny"),
+                new ProcessorModel("Otsu", EdgeProcessor.Type.Otsu, "OpenCV Otsu"),
+                new ProcessorModel("Face", EdgeProcessor.Type.Face, "OpenCV Face Detection"),
+                new ProcessorModel("Laplacian", EdgeProcessor.Type.Laplacian, "OpenCV Laplacian"),
+                new ProcessorModel("Box", EdgeProcessor.Type.Box, "OpenCV Box Filter"),
+                new ProcessorModel("ScharrX", EdgeProcessor.Type.ScharrX, "OpenCV Scharr X"),
+                new ProcessorModel("ScharrY", EdgeProcessor.Type.ScharrY, "OpenCV Scharr Y"),
+                new ProcessorModel("ScharrQuad", EdgeProcessor.Type.ScharrQuad, "OpenCV Scharr Diff"),
+                new ProcessorModel("ScharrMax", EdgeProcessor.Type.ScharrMax, "OpenCV Scharr Max"),
+                new ProcessorModel("Sobel", EdgeProcessor.Type.Sobel, "OpenCV Sobel"),
+                new ProcessorModel("Chrominance", EdgeProcessor.Type.Chrominance, "Camera Chrominance"),
+                new ProcessorModel("SobelX", EdgeProcessor.Type.SobelX, "OpenCV Sobel X"),
+                new ProcessorModel("SobelY", EdgeProcessor.Type.SobelY, "OpenCV Sobel Y"),
+                new ProcessorModel("SobelQuad", EdgeProcessor.Type.SobelQuad, "OpenCV Sobel Diff"),
+                new ProcessorModel("SobelMax", EdgeProcessor.Type.SobelMax, "OpenCV Sobel Max"),
+                new ProcessorModel("RenderScriptHighPass", EdgeProcessor.Type.RenderScriptHighPass, "RenderScript High Pass"),
+                new ProcessorModel("RenderScriptHighPass", EdgeProcessor.Type.RenderScriptLowPass, "RenderScript Low Pass"),
+                new ProcessorModel("RenderScriptBandPass", EdgeProcessor.Type.RenderScriptBandPass, "RenderScript Band Pass"),
+                new ProcessorModel("RenderScriptBandStop", EdgeProcessor.Type.RenderScriptBandStop, "RenderScript Band Stop")
         };
+
+        return new ProcessorModels(models);
     }
 
-    private void bindProcessorToView(int id, EdgeProcessor.Type type) {
-        final ViewGroup.LayoutParams parms = new ViewGroup.LayoutParams(mPreviewWidth, mPreviewHeight);
-        ((FrameLayout)findViewById(id)).addView(mCameraPreview.findProcessorByType(type).getView(), parms);
-    }
+    private void createAndBindViews() {
+        final LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(mPreviewWidth, mPreviewHeight);
 
-    // todo crz: automate this
-    private void bindProcessorsToViews() {
-        bindProcessorToView(R.id.frame_layout_greyscale, EdgeProcessor.Type.Greyscale);
-        bindProcessorToView(R.id.frame_layout_canny, EdgeProcessor.Type.Canny);
-        bindProcessorToView(R.id.frame_layout_otsu, EdgeProcessor.Type.Otsu);
-        bindProcessorToView(R.id.frame_layout_laplacian, EdgeProcessor.Type.Laplacian);
-        bindProcessorToView(R.id.frame_layout_box, EdgeProcessor.Type.Box);
-        bindProcessorToView(R.id.frame_layout_scharr_x, EdgeProcessor.Type.ScharrX);
-        bindProcessorToView(R.id.frame_layout_scharr_y, EdgeProcessor.Type.ScharrY);
-        bindProcessorToView(R.id.frame_layout_scharr_quad, EdgeProcessor.Type.ScharrQuad);
-        bindProcessorToView(R.id.frame_layout_scharr_max, EdgeProcessor.Type.ScharrMax);
-        bindProcessorToView(R.id.frame_layout_sobel, EdgeProcessor.Type.Sobel);
-        bindProcessorToView(R.id.frame_layout_chrominance, EdgeProcessor.Type.Chrominance);
-        bindProcessorToView(R.id.frame_layout_sobel_x, EdgeProcessor.Type.SobelX);
-        bindProcessorToView(R.id.frame_layout_sobel_y, EdgeProcessor.Type.SobelY);
-        bindProcessorToView(R.id.frame_layout_sobel_quad, EdgeProcessor.Type.SobelQuad);
-        bindProcessorToView(R.id.frame_layout_sobel_max, EdgeProcessor.Type.SobelMax);
-        bindProcessorToView(R.id.frame_layout_renderscript_high_pass, EdgeProcessor.Type.RenderScriptHighPass);
-        bindProcessorToView(R.id.frame_layout_renderscript_low_pass, EdgeProcessor.Type.RenderScriptLowPass);
-        bindProcessorToView(R.id.frame_layout_renderscript_band_pass, EdgeProcessor.Type.RenderScriptBandPass);
-        bindProcessorToView(R.id.frame_layout_renderscript_band_stop, EdgeProcessor.Type.RenderScriptBandStop);
+        final ImageView greyscaleImageView = (ImageView)findViewById(R.id.greyscale_image_view);
+        greyscaleImageView.setLayoutParams(parms);
 
-        ((FrameLayout)findViewById(R.id.frame_layout_greyscale)).setOnClickListener(new View.OnClickListener() {
+        final GridLayout grid = (GridLayout)findViewById(R.id.grid_layout);
+        grid.setColumnCount(mGridColumnCount);
+
+        for (final ProcessorModel model : mProcessors.getModels()) {
+            if (model.getName().equals("Greyscale")) {
+                ImageView iv = (ImageView)findViewById(R.id.greyscale_image_view);
+                model.setView(iv);
+            } else {
+                LinearLayout layout = (LinearLayout) getLayoutInflater().inflate(R.layout.grid_item_layout, grid, false);
+                ImageView iv = (ImageView) layout.findViewById(R.id.grid_item_image_view);
+                TextView tv = (TextView) layout.findViewById(R.id.grid_item_text_view);
+
+                tv.setText(model.getLabel());
+                iv.setLayoutParams(parms);
+
+                model.setView(iv);
+
+                grid.addView(layout);
+            }
+        }
+
+        mProcessors.findModelByName("Box").getProcessor().disable();
+
+        mProcessors.findModelByName("Greyscale").getView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(MainActivity.this, ConfigActivity.class));

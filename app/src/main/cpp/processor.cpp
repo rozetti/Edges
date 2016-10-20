@@ -2,10 +2,13 @@
 #include <math.h>
 #include <stdint.h>
 #include <android/log.h>
-
-#include <opencv2/opencv.hpp>
+#include <vector>
 
 #include "processor.h"
+#include "face_detector.h"
+#include "opencv2/opencv.hpp"
+
+extern rz::face_detector _face_detector;
 
 #define  LOG_TAG    "processor"
 #define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
@@ -97,7 +100,25 @@ void rz::processor::process(int type, uint8_t *out_pixels)
             cv::blur(luminance, *m_temp, cv::Size(blur_kernel_size, blur_kernel_size));
             m_temp->convertTo(*m_greyscale, -1, contrast, brightness);
 
+            equalizeHist(*m_greyscale, *m_greyscale);
             cv::cvtColor(*m_greyscale, output, cv::COLOR_GRAY2BGRA);
+            break;
+        }
+        case Face:
+        {
+            cv::cvtColor(*m_greyscale, output, cv::COLOR_GRAY2BGRA);
+
+            std::vector<cv::Rect> rects;
+            _face_detector.detect(*m_greyscale, rects);
+
+            if (!rects.empty())
+            {
+                LOGI("found faces: %d\r\n", rects.size());
+                for(auto const &rect : rects)
+                {
+                    rectangle(output, rect.tl(), rect.br(), cv::Scalar(255,0, 255), 3);
+                }
+            }
             break;
         }
         case Canny:

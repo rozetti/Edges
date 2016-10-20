@@ -16,13 +16,13 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
 
     private int mPreviewWidth;
     private int mPreviewHeight;
-    private EdgeProcessor[] mProcessors;
+    private ProcessorModels mProcessors;
 
     private Camera mCamera = null;
     private Handler mProcessHandler = null;
     private boolean mIsIdle = true;
 
-    public CameraPreview(int width, int height, final EdgeProcessor processors[])
+    public CameraPreview(int width, int height, final ProcessorModels processors)
     {
         mPreviewWidth = width;
         mPreviewHeight = height;
@@ -49,17 +49,6 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
         }.start();
     }
 
-    public EdgeProcessor findProcessorByType(final EdgeProcessor.Type type) {
-
-        for (EdgeProcessor p : mProcessors) {
-            if (p.getType() == type) {
-                return p;
-            }
-        }
-
-        return null;
-    }
-
     @Override
     public void onPreviewFrame(byte[] data, Camera arg1)
     {
@@ -70,8 +59,8 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
 
         EdgeProcessor.setFrameData(data);
 
-        for (final EdgeProcessor p : mProcessors) {
-            mProcessHandler.post(p.Process);
+        for (final ProcessorModel p : mProcessors.getModels()) {
+            mProcessHandler.post(p.getProcessor().Process);
         }
     }
 
