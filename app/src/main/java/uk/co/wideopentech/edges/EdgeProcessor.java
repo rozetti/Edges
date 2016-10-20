@@ -159,6 +159,6 @@ public class EdgeProcessor {
                 break;
         }
 
-        out_alloc.copy1DRangeTo(0, allocation_size, data);
+        out_alloc.copyTo(data);
     }
 }

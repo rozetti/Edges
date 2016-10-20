@@ -90,7 +90,7 @@ public class ConfigSlider extends LinearLayout {
         if (null != attrs) {
             final TypedArray aa = context.obtainStyledAttributes(attrs, R.styleable.ConfigSlider);
 
-            mTitle = aa.getString(R.styleable.ConfigSlider_title);
+            mTitle = aa.getString(R.styleable.ConfigSlider_label);
             mSliderMin = aa.getInt(R.styleable.ConfigSlider_min, 0);
             mSliderMax = aa.getInt(R.styleable.ConfigSlider_max, 100);
             mSliderDefaultValue = aa.getInt(R.styleable.ConfigSlider_value, 50);

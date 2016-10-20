@@ -1,19 +1,15 @@
 package uk.co.wideopentech.edges;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -23,7 +19,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -32,11 +27,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 
 import static java.lang.Math.max;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static Context context = null;
@@ -72,23 +66,18 @@ public class MainActivity extends AppCompatActivity {
         createCameraSurface();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-        if (requestCode == 1) {
-            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                mCanUseCamera = false;
-                Log.e(TAG, "Cant use the camera");
-            } else {
-                onCameraPermitted();
-            }
-        }
-    }
-
-    private void loadCascadeData()
-    {
-
-    }
+// crz: API >= 23
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//
+//    if (requestCode == 1) {
+//        if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+//            mCanUseCamera = false;
+//            Log.e(TAG, "Cant use the camera");
+//        } else {
+//            onCameraPermitted();
+//        }
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,11 +89,13 @@ public class MainActivity extends AppCompatActivity {
         InputStream str = getResources().openRawResource(R.raw.lbpcascade_frontalface);
         FaceDetector.init(str);
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
-        } else {
-            onCameraPermitted();
-        }
+// crz: API >= 23
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
+//        } else {
+//            onCameraPermitted();
+//        }
+        onCameraPermitted();
     }
 
     @Override
