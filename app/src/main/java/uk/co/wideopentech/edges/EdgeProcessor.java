@@ -2,9 +2,9 @@ package uk.co.wideopentech.edges;
 
 import android.graphics.Bitmap;
 import android.os.Handler;
-import android.support.v8.renderscript.Allocation;
-import android.support.v8.renderscript.Element;
-import android.support.v8.renderscript.RenderScript;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
 import android.view.View;
 import android.widget.ImageView;
 

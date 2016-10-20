@@ -46,8 +46,6 @@ public class MainActivity extends Activity {
 
     static {
         System.loadLibrary("opencv_java3");
-        System.loadLibrary("rsjni");
-        System.loadLibrary("RSSupport");
         System.loadLibrary("native-lib");
     }
 
@@ -66,18 +64,18 @@ public class MainActivity extends Activity {
         createCameraSurface();
     }
 
-// crz: API >= 23
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//
-//    if (requestCode == 1) {
-//        if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-//            mCanUseCamera = false;
-//            Log.e(TAG, "Cant use the camera");
-//        } else {
-//            onCameraPermitted();
-//        }
-//    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        if (requestCode == 1) {
+            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                mCanUseCamera = false;
+                Log.e(TAG, "Cant use the camera");
+            } else {
+                onCameraPermitted();
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,13 +87,15 @@ public class MainActivity extends Activity {
         InputStream str = getResources().openRawResource(R.raw.lbpcascade_frontalface);
         FaceDetector.init(str);
 
-// crz: API >= 23
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
-//        } else {
-//            onCameraPermitted();
-//        }
-        onCameraPermitted();
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
+            } else {
+                onCameraPermitted();
+            }
+        } else {
+            onCameraPermitted();
+        }
     }
 
     @Override
