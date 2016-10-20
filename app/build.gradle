@@ -16,7 +16,7 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++11"
-                arguments "-DOPENCV_INCLUDE_PATH=/OpenCV-android-sdk/sdk/native/jni/include"
+                arguments "-DOPENCV_INCLUDE_PATH=$System.env.OPENCV_INCLUDE_PATH"
                 arguments "-DOPENCV_LIB_PATH=src/main/jniLibs"
             }
         }
