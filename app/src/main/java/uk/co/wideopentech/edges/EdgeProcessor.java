@@ -43,54 +43,60 @@ public class EdgeProcessor {
         RenderScriptBandStop
     }
 
-    private static int _width;
-    private static int _height;
-    private static int _processedPixels[] = null;
+    private int mWidth;
+    private int mHeight;
+    private int mProcessedPixels[] = null;
     private static Handler _viewHandler = null;
 
+    private int mNativeId;
     private EdgeProcessor.Type mType;
     private ImageView mView = null;
 
     private Bitmap mBitmap = null;
     private boolean mEnabled = true;
 
-    private static native void SetupProcessorsNative(int width, int height);
-    private static native void SetFrameDataNative(byte[] data);
-    private static native boolean ProcessNative(int type, int[] pixels);
+    private static native void SetupProcessorsNative(int id, int width, int height);
+    private static native void SetFrameDataNative(int id, byte[] data);
+    private static native int CreateProcessorNative(int type);
+    private static native boolean ProcessNative(int id, int[] pixels);
 
-    public static void setFrame(int width, int height) {
-        _width = width;
-        _height = height;
-        _processedPixels = new int[_width * _height];
-
-        SetupProcessorsNative(width, height);
-    }
-
-    public boolean getEnabled() { return mEnabled; }
     public void enable() { mEnabled = true; }
     public void disable() { mEnabled = false; }
-
-    public static void setViewHandler(final Handler handler) {
-        _viewHandler = handler;
-    }
-    public static void setFrameData(final byte[] data) {
-        SetFrameDataNative(data);
-    }
-
-    public EdgeProcessor(EdgeProcessor.Type type)
-    {
-        mType = type;
-
-        mBitmap = Bitmap.createBitmap(_width, _height, Bitmap.Config.ARGB_8888);
-    }
+    public boolean getEnabled() { return mEnabled; }
 
     public void setView(ImageView view) { mView = view; }
     public View getView() {
         return mView;
     }
 
+    public int getId() { return mNativeId; }
     public Type getType() {
         return mType;
+    }
+
+    public static void setViewHandler(final Handler handler) {
+        _viewHandler = handler;
+    }
+
+    public EdgeProcessor(EdgeProcessor.Type type)
+    {
+        mType = type;
+
+        mNativeId = CreateProcessorNative(type.ordinal());
+    }
+
+    public void setFrame(int width, int height) {
+        mWidth = width;
+        mHeight = height;
+        mProcessedPixels = new int[width * height];
+
+        mBitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
+
+        SetupProcessorsNative(mNativeId, width, height);
+    }
+
+    public void setFrameData(final byte[] data) {
+        SetFrameDataNative(mNativeId, data);
     }
 
     public final Runnable Process = new Runnable()
@@ -100,24 +106,24 @@ public class EdgeProcessor {
 
             if (!mEnabled) return;
 
-            ProcessNative(mType.ordinal(), _processedPixels);
+            ProcessNative(mNativeId, mProcessedPixels);
 
             switch(mType) {
                 case RenderScriptHighPass:
-                    applyRenderScriptFilter(RenderScriptFilterType.HighPass, _processedPixels);
+                    applyRenderScriptFilter(RenderScriptFilterType.HighPass, mProcessedPixels);
                     break;
                 case RenderScriptLowPass:
-                    applyRenderScriptFilter(RenderScriptFilterType.LowPass, _processedPixels);
+                    applyRenderScriptFilter(RenderScriptFilterType.LowPass, mProcessedPixels);
                     break;
                 case RenderScriptBandPass:
-                    applyRenderScriptFilter(RenderScriptFilterType.BandPass, _processedPixels);
+                    applyRenderScriptFilter(RenderScriptFilterType.BandPass, mProcessedPixels);
                     break;
                 case RenderScriptBandStop:
-                    applyRenderScriptFilter(RenderScriptFilterType.BandStop, _processedPixels);
+                    applyRenderScriptFilter(RenderScriptFilterType.BandStop, mProcessedPixels);
                     break;
             }
 
-            mBitmap.setPixels(_processedPixels, 0, _width, 0, 0, _width, _height);
+            mBitmap.setPixels(mProcessedPixels, 0, mWidth, 0, 0, mWidth, mHeight);
             _viewHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -131,7 +137,7 @@ public class EdgeProcessor {
     {
         if (RenderScriptFilterType.None == filterType) return;
 
-        int allocation_size = _width * _height;
+        int allocation_size = mWidth * mHeight;
 
         RenderScript rs = RenderScript.create(MainActivity.getContext());
 

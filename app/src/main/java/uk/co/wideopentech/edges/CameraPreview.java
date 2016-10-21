@@ -57,10 +57,11 @@ public class CameraPreview implements SurfaceHolder.Callback, Camera.PreviewCall
         if (!mIsIdle) return;
         mIsIdle = false;
 
-        EdgeProcessor.setFrameData(data);
-
         for (final ProcessorModel p : mProcessors.getModels()) {
-            mProcessHandler.post(p.getProcessor().Process);
+            EdgeProcessor processor = p.getProcessor();
+
+            processor.setFrameData(data);
+            mProcessHandler.post(processor.Process);
         }
     }
 

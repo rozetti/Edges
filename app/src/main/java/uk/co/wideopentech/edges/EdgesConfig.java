@@ -13,10 +13,11 @@ public class EdgesConfig {
     public static EdgesConfig getInstance() { return instance; }
     public static void setInstance(EdgesConfig config) { instance = config; }
 
-    private static native void SetParameterNative(int parameter, int value);
-    private static native int GetParameterNative(int parameter);
+    private static native void SetParameterNative(int id, int parameter, int value);
+    private static native int GetParameterNative(int id, int parameter);
 
     private SharedPreferences mPreferences = null;
+    private ProcessorModels mProcessors = null;
 
     public enum ParameterType
     {
@@ -58,17 +59,24 @@ public class EdgesConfig {
         return 0;
     }
 
-    public EdgesConfig(final Activity activity) {
+    public EdgesConfig(final Activity activity, final ProcessorModels processors) {
+        mProcessors = processors;
         mPreferences = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext());
     }
 
     public void SaveConfig() {
         SharedPreferences.Editor editor = mPreferences.edit();
 
-        for(ParameterType type : ParameterType.values()) {
-            final int value = GetParameterNative(type.ordinal());
-            Log.i(TAG, "saving parameter: " + type.name() + " = " + String.valueOf(value));
-            editor.putInt(type.name(), value);
+        for (final ProcessorModel model : mProcessors.getModels()) {
+            int id = model.getProcessor().getId();
+
+            for (ParameterType type : ParameterType.values()) {
+                final String tag = String.valueOf(id) + "-" + type.name();
+
+                final int value = GetParameterNative(id, type.ordinal());
+                Log.i(TAG, "saving parameter: " + tag + " = " + String.valueOf(value));
+                editor.putInt(tag, value);
+            }
         }
 
         editor.commit();
@@ -76,27 +84,41 @@ public class EdgesConfig {
 
     protected void RestoreConfig() {
 
-        for(ParameterType type : ParameterType.values()) {
-            final int value = mPreferences.getInt(type.name(), getParameterDefaultValue(type));
-            Log.i(TAG, "loading parameter: " + type.name() + " = " + String.valueOf(value));
-            SetParameterNative(type.ordinal(), value);
+        for (final ProcessorModel model : mProcessors.getModels()) {
+            int id = model.getProcessor().getId();
+
+            for (ParameterType type : ParameterType.values()) {
+                final String tag = String.valueOf(id) + "-" + type.name();
+
+                final int value = mPreferences.getInt(tag, getParameterDefaultValue(type));
+                Log.i(TAG, "loading parameter: " + tag + " = " + String.valueOf(value));
+                SetParameterNative(id, type.ordinal(), value);
+            }
         }
     }
 
     public void DefaultConfig() {
 
-        for(ParameterType type : ParameterType.values()) {
-            final int value = getParameterDefaultValue(type);
-            SetParameterNative(type.ordinal(), value);
+        for (ProcessorModel model : mProcessors.getModels()) {
+            int id = model.getProcessor().getId();
+
+            for (ParameterType type : ParameterType.values()) {
+                final int value = getParameterDefaultValue(type);
+                SetParameterNative(id, type.ordinal(), value);
+            }
         }
     }
 
     public void SetParameter(int parameter, int value) {
-        SetParameterNative(parameter, value);
+        for (final ProcessorModel model : mProcessors.getModels()) {
+            int id = model.getProcessor().getId();
+            SetParameterNative(id, parameter, value);
+        }
     }
 
     public int GetParameter(int parameter) {
-        return GetParameterNative(parameter);
+
+        return GetParameterNative(0, parameter);
     }
 
 

@@ -7,6 +7,8 @@ add_library(
 native-lib SHARED
 src/main/cpp/native-lib.cpp
 src/main/cpp/processor.cpp
+src/main/cpp/processor_factory.cpp
+src/main/cpp/processors.cpp
 src/main/cpp/face_detector.cpp
 #src/main/cpp/renderscript_filters.cpp # crz: RS from NDK is not supported on my API 15 tablet
 )

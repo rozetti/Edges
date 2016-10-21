@@ -15,15 +15,21 @@ extern rz::face_detector _face_detector;
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 
 rz::processor::processor() :
-        m_height(0),
-        m_width(0),
-        m_frameData(nullptr),
-        m_greyscale(nullptr),
-        m_temp(nullptr),
-        m_scharrX(nullptr),
-        m_scharrY(nullptr),
-        m_sobelX(nullptr),
-        m_sobelY(nullptr)
+    processor(Greyscale)
+{
+}
+
+rz::processor::processor(enum filter_type_t type) :
+    m_type(type),
+    m_height(0),
+    m_width(0),
+    m_frameData(nullptr),
+    m_greyscale(nullptr),
+    m_temp(nullptr),
+    m_scharrX(nullptr),
+    m_scharrY(nullptr),
+    m_sobelX(nullptr),
+    m_sobelY(nullptr)
 {
     memset(m_parameters, 0, sizeof(m_parameters));
 }
@@ -258,6 +264,8 @@ bool rz::processor::get_parameter(int parameter, int &value)
 
     value = m_parameters[parameter];
 
+    LOGI("GetParameter(%d) %d: %d", m_id, parameter, value);
+
     return true;
 }
 
@@ -265,7 +273,7 @@ void rz::processor::set_parameter(int parameter, int value)
 {
     if (!::check_parameter(parameter)) return;
 
-    LOGI("SetParameter %d: %d -> %d", parameter, m_parameters[parameter], value);
+    LOGI("SetParameter(%d) %d: %d -> %d", m_id, parameter, m_parameters[parameter], value);
 
     m_parameters[parameter] = value;
 }

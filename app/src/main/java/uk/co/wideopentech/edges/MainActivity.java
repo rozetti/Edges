@@ -57,8 +57,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         setupCameraFrame();
-        EdgeProcessor.setFrame(mPreviewWidth, mPreviewHeight);
-        mProcessors = createProcessors();
         mCameraPreview = new CameraPreview(mPreviewWidth, mPreviewHeight, mProcessors);
         createAndBindViews();
         createCameraSurface();
@@ -82,7 +80,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         context = this;
-        EdgesConfig.setInstance(new EdgesConfig(this));
+        mProcessors = createProcessors();
+        EdgesConfig.setInstance(new EdgesConfig(this, mProcessors));
+        EdgesConfig.getInstance().DefaultConfig();
 
         InputStream str = getResources().openRawResource(R.raw.lbpcascade_frontalface);
         FaceDetector.init(str);
@@ -181,6 +181,8 @@ public class MainActivity extends AppCompatActivity {
         grid.setColumnCount(mGridColumnCount);
 
         for (final ProcessorModel model : mProcessors.getModels()) {
+            model.getProcessor().setFrame(mPreviewWidth, mPreviewHeight);
+
             if (model.getName().equals("Greyscale")) {
                 ImageView iv = (ImageView)findViewById(R.id.greyscale_image_view);
                 model.setView(iv);
